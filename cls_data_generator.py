@@ -75,7 +75,7 @@ class DataGenerator(object):
         return self._nb_total_batches
 
     def _get_filenames_list_and_feat_label_sizes(self):
-        print('Computing some stats about the dataset')
+        print(f'Computing some stats about the dataset in {self._feat_dir}')
         max_frames, total_frames, temp_feat = -1, 0, []
         for filename in os.listdir(self._feat_dir):
             if int(filename[4]) in self._splits: # check which split the file belongs to

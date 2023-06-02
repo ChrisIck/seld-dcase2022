@@ -212,7 +212,12 @@ def main(argv):
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
     torch.autograd.set_detect_anomaly(True)
-
+    
+    if use_cuda:
+        print("Using GPU")
+    else:
+        print("Using CPU")
+    
     # use parameter set defined by user
     task_id = '1' if len(argv) < 2 else argv[1]
     params = parameters.get_params(task_id)
@@ -238,8 +243,11 @@ def main(argv):
             train_splits = [[1, 2, 3]] 
 
         else:
-            print('ERROR: Unknown dataset splits')
-            exit()
+            print('Using Train 1,2,3,  Val 4, Test 4')
+            test_splits = [[4]]
+            val_splits = [[4]]
+            train_splits = [[1, 2, 3]]
+            
     for split_cnt, split in enumerate(test_splits):
         print('\n\n---------------------------------------------------------------------------------------------------')
         print('------------------------------------      SPLIT {}   -----------------------------------------------'.format(split))
@@ -366,7 +374,7 @@ def main(argv):
 
         test_loss = test_epoch(data_gen_test, model, criterion, dcase_output_test_folder, params, device)
 
-        use_jackknife=True
+        use_jackknife=False #True
         test_ER, test_F, test_LE, test_LR, test_seld_scr, classwise_test_scr = score_obj.get_SELD_Results(dcase_output_test_folder, is_jackknife=use_jackknife )
         print('\nTest Loss')
         print('SELD score (early stopping metric): {:0.2f} {}'.format(test_seld_scr[0] if use_jackknife else test_seld_scr, '[{:0.2f}, {:0.2f}]'.format(test_seld_scr[1][0], test_seld_scr[1][1]) if use_jackknife else ''))
@@ -387,8 +395,5 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    try:
-        sys.exit(main(sys.argv))
-    except (ValueError, IOError) as e:
-        sys.exit(e)
+    main(sys.argv)
 

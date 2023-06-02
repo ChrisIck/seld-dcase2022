@@ -8,25 +8,26 @@ def get_params(argv='1'):
     print("SET: {}".format(argv))
     # ########### default parameters ##############
     params = dict(
-        quick_test=True,     # To do quick test. Trains/test on small subset of dataset, and # of epochs
+        quick_test=False,     # To do quick test. Trains/test on small subset of dataset, and # of epochs
     
         finetune_mode = False,  # Finetune on existing model, requires the pretrained model path set - pretrained_model_weights
-        pretrained_model_weights = 'models/1_1_foa_dev_split6_model.h5', 
+        pretrained_model_weights = None,#'models/1_1_foa_dev_split6_model.h5', 
 
         # INPUT PATH
         # dataset_dir='DCASE2020_SELD_dataset/',  # Base folder containing the foa/mic and metadata folders
-        dataset_dir = '/scratch/asignal/partha/DCASE2022_SELD_dataset',
+        dataset_dir = '/scratch/ci411/SELD_Datasets/TFR_0601',
 
         # OUTPUT PATHS
         # feat_label_dir='DCASE2020_SELD_dataset/feat_label_hnet/',  # Directory to dump extracted features and labels
-        feat_label_dir='/scratch/asignal/partha/DCASE2022_SELD_dataset/seld_feat_label',
+        feat_label_dir='/scratch/ci411/DCASE_GEN/seld_features/TFR_0601',
  
         model_dir='models/',            # Dumps the trained models and training curves in this folder
         dcase_output_dir='results/',    # recording-wise results are dumped in this path.
 
         # DATASET LOADING PARAMETERS
         mode='dev',         # 'dev' - development or 'eval' - evaluation dataset
-        dataset='foa',       # 'foa' - ambisonic or 'mic' - microphone signals
+        dataset='mic',       # 'foa' - ambisonic or 'mic' - microphone signals
+        unique_classes=14, #standard for FSD50k
 
         #FEATURE PARAMS
         fs=24000,
@@ -46,7 +47,7 @@ def get_params(argv='1'):
 
         # DNN MODEL PARAMETERS
         label_sequence_length=50,    # Feature sequence length
-        batch_size=128,              # Batch size
+        batch_size=256,              # Batch size
         dropout_rate=0.05,             # Dropout rate, constant for all layers
         nb_cnn2d_filt=64,           # Number of CNN nodes, constant for each layer
         f_pool_size=[4, 4, 2],      # CNN frequency pooling, length of list = number of CNN layers, list value = pooling per layer
@@ -71,6 +72,18 @@ def get_params(argv='1'):
     # ########### User defined parameters ##############
     if argv == '1':
         print("USING DEFAULT PARAMETERS\n")
+        print(f"Loading data from {params['dataset_dir']}")
+        
+    elif argv == '1t':
+        print("SHORT TEST\n")
+        params['quick_test'] = True
+              
+    elif argv == '1s':
+        print("USING DEFAULT PARAMETERS\n")
+        params['dataset_dir'] = '/scratch/ci411/SELD_Datasets/TFS_0601'
+        params['feat_label_dir'] = '/scratch/ci411/DCASE_GEN/seld_features/TFS_0601'
+        print(f"Loading data from {params['dataset_dir']}")
+
 
     elif argv == '2':
         print("FOA + ACCDOA\n")
@@ -104,6 +117,17 @@ def get_params(argv='1'):
         params['dataset'] = 'mic'
         params['use_salsalite'] = False
         params['multi_accdoa'] = True
+        params['feat_label_dir'] = '/scratch/ci411/DCASE_GEN/seld_features/TFRB_0527'
+
+        
+    elif argv == '6s':
+        print("MIC + GCC + multi ACCDOA\n")
+        params['quick_test'] = False
+        params['dataset'] = 'mic'
+        params['use_salsalite'] = False
+        params['multi_accdoa'] = True
+        params['dataset_dir'] = '/scratch/ci411/SELD_Datasets/TFS_0527'
+        params['feat_label_dir'] = '/scratch/ci411/DCASE_GEN/seld_features/TFSB_0527'
 
     elif argv == '7':
         print("MIC + SALSA + multi ACCDOA\n")
@@ -130,6 +154,8 @@ def get_params(argv='1'):
     elif '2021' in params['dataset_dir']:
         params['unique_classes'] = 12
     elif '2022' in params['dataset_dir']:
+        params['unique_classes'] = 13
+    else:
         params['unique_classes'] = 13
 
     for key, value in params.items():
